@@ -87,12 +87,13 @@ body{
 
 #player{
     position:absolute;
-    bottom:70px;
+    bottom:20px;
+
     left:50%;
     transform:translateX(-50%);
-    font-size:60px;
-    z-index:20;
-    transition:transform .1s;
+
+    font-size:50px;
+    z-index:100;
 }
 
 /* OBJECT CONTAINER */
