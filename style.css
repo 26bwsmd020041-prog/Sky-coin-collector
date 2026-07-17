@@ -23,19 +23,15 @@ body{
 }
 
 #game{
-    width:90vw;
-    max-width:700px;
-
-    height:90vh;
-    max-height:900px;
-
-    margin:auto;
-    overflow:hidden;
     position:relative;
+    width:min(90vw,600px);
+    aspect-ratio:3/5;
+
+    overflow:hidden;
 
     background:linear-gradient(#6ec6ff,#dff7ff);
-    border-radius:20px;
-    border:4px solid white;
+
+    margin:auto;
 }
 
 /* SKY */
