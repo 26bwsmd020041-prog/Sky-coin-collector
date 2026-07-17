@@ -15,92 +15,120 @@ const finalScore = document.getElementById("finalScore");
 let score = 0;
 let lives = 3;
 let playing = false;
-let playerX = 200;
 
+let playerX = 0;
 let items = [];
 
-// Move player
-game.addEventListener("mousemove", moveMouse);
-game.addEventListener("touchmove", moveTouch);
-
-function moveMouse(e){
-    if(!playing) return;
-    playerX = e.offsetX;
-    player.style.left = playerX + "px";
-}
-
-function moveTouch(e){
-    if(!playing) return;
-    e.preventDefault();
-    playerX = e.touches[0].clientX;
-    player.style.left = playerX + "px";
-}
-
-// Start game
+// Start Game
 startBtn.onclick = startGame;
 restartBtn.onclick = startGame;
 
 function startGame(){
 
-    startScreen.style.display="none";
-    gameOver.style.display="none";
+    score = 0;
+    lives = 3;
 
-    score=0;
-    lives=3;
+    scoreText.textContent = "🪙 Score: 0";
+    livesText.textContent = "❤️❤️❤️";
 
-    scoreText.textContent="🪙 Score: 0";
-    livesText.textContent="❤️❤️❤️";
+    startScreen.style.display = "none";
+    gameOver.style.display = "none";
 
-    items.forEach(i=>i.element.remove());
-    items=[];
+    items.forEach(item => item.element.remove());
+    items = [];
 
-    playing=true;
+    playerX = game.clientWidth / 2;
+    player.style.left = playerX + "px";
+
+    playing = true;
 
 }
 
-// Spawn objects
-setInterval(()=>{
+// Mouse Control
+game.addEventListener("mousemove", function(e){
 
     if(!playing) return;
 
-    let obj=document.createElement("div");
+    const rect = game.getBoundingClientRect();
 
-    let bomb=Math.random()<0.3;
+    playerX = e.clientX - rect.left;
 
-    obj.className=bomb?"bomb":"coin";
-    obj.textContent=bomb?"💣":"🪙";
+    movePlayer();
 
-    let x=Math.random()*(game.clientWidth-40);
+});
 
-    obj.style.left=x+"px";
-    obj.style.top="-40px";
+// Touch Control
+game.addEventListener("touchmove", function(e){
+
+    if(!playing) return;
+
+    e.preventDefault();
+
+    const rect = game.getBoundingClientRect();
+
+    playerX = e.touches[0].clientX - rect.left;
+
+    movePlayer();
+
+});
+
+function movePlayer(){
+
+    if(playerX < 30) playerX = 30;
+    if(playerX > game.clientWidth - 30)
+        playerX = game.clientWidth - 30;
+
+    player.style.left = playerX + "px";
+
+}
+
+// Spawn Coins/Bombs
+setInterval(function(){
+
+    if(!playing) return;
+
+    const bomb = Math.random() < 0.3;
+
+    const obj = document.createElement("div");
+
+    obj.className = bomb ? "bomb" : "coin";
+
+    obj.textContent = bomb ? "💣" : "🪙";
+
+    const x = Math.random() * (game.clientWidth - 40);
+
+    obj.style.left = x + "px";
+    obj.style.top = "-40px";
 
     objects.appendChild(obj);
 
     items.push({
+
         x:x,
         y:-40,
         bomb:bomb,
         element:obj
+
     });
 
 },700);
 
-// Game loop
-function update(){
+// Game Loop
+function gameLoop(){
 
     if(playing){
 
         for(let i=items.length-1;i>=0;i--){
 
-            let item=items[i];
+            let item = items[i];
 
-            item.y+=4;
+            item.y += 5;
 
-            item.element.style.top=item.y+"px";
+            item.element.style.top = item.y + "px";
 
-            if(item.y>game.clientHeight-120 &&
-               Math.abs(item.x-playerX)<40){
+            // Collision
+            if(item.y > game.clientHeight - 130 &&
+               Math.abs(item.x-playerX) < 35){
 
                 if(item.bomb){
 
@@ -108,19 +136,20 @@ function update(){
 
                 }else{
 
-                    score+=10;
+                    score += 10;
 
                 }
 
-                scoreText.textContent="🪙 Score: "+score;
-                livesText.textContent="❤️".repeat(lives);
+                scoreText.textContent = "🪙 Score: " + score;
+                livesText.textContent = "❤️".repeat(lives);
 
                 item.element.remove();
                 items.splice(i,1);
 
             }
 
-            if(item.y>game.clientHeight){
+            // Missed
+            else if(item.y > game.clientHeight){
 
                 item.element.remove();
                 items.splice(i,1);
@@ -129,20 +158,20 @@ function update(){
 
         }
 
-        if(lives<=0){
+        if(lives <= 0){
 
-            playing=false;
+            playing = false;
 
-            finalScore.textContent="Score: "+score;
+            finalScore.textContent = "Score: " + score;
 
-            gameOver.style.display="flex";
+            gameOver.style.display = "flex";
 
         }
 
     }
 
-    requestAnimationFrame(update);
+    requestAnimationFrame(gameLoop);
 
 }
 
-update();
+gameLoop();
